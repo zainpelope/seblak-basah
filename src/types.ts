@@ -8,6 +8,8 @@ export const SUMBER_DANA_OPTIONS = [
   'Minuman',
   'Seblak Kering',
   'Seblak Basah',
+  'Es Krim',
+  'Pribadi',
   'Lainnya...',
 ] as const;
 
