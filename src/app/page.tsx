@@ -131,8 +131,21 @@ function UnitDashboard({
         </button>
       </div>
 
-      {/* Transaction Table */}
-      <TransactionTable unit={unit} onEdit={onEditTransaction} />
+      {/* Transaction Tables */}
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-sm font-bold text-emerald-400 mb-3 flex items-center gap-2">
+            <Plus size={16} /> Riwayat Pendapatan
+          </h3>
+          <TransactionTable unit={unit} filterTipe="MASUK" onEdit={onEditTransaction} />
+        </div>
+        <div>
+          <h3 className="text-sm font-bold text-rose-400 mb-3 flex items-center gap-2">
+            <Minus size={16} /> Riwayat Pengeluaran
+          </h3>
+          <TransactionTable unit={unit} filterTipe="KELUAR" onEdit={onEditTransaction} />
+        </div>
+      </div>
     </section>
   );
 }

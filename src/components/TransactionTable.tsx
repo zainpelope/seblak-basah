@@ -4,18 +4,19 @@ import { useState } from 'react';
 import { Unit, Transaksi } from '@/types';
 import { useTransaksiStore } from '@/store';
 import { formatRupiah } from './SaldoCard';
-import { CheckCircle2, Trash2, Clock, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckCircle2, Trash2, Clock, Edit, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 
 interface TransactionTableProps {
     unit: Unit;
+    filterTipe: 'MASUK' | 'KELUAR';
     onEdit: (t: Transaksi) => void;
 }
 
-export default function TransactionTable({ unit, onEdit }: TransactionTableProps) {
+export default function TransactionTable({ unit, filterTipe, onEdit }: TransactionTableProps) {
     const allTransaksi = useTransaksiStore((s) => s.transaksi);
     const lunasiHutang = useTransaksiStore((s) => s.lunasiHutang);
     const hapusTransaksi = useTransaksiStore((s) => s.hapusTransaksi);
-    const transaksi = allTransaksi.filter((t) => t.unit === unit);
+    const transaksi = allTransaksi.filter((t) => t.unit === unit && t.tipe === filterTipe);
 
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 10;
@@ -63,6 +64,9 @@ export default function TransactionTable({ unit, onEdit }: TransactionTableProps
                     <thead>
                         <tr className="border-b border-white/10">
                             <th className="text-left text-white/50 text-xs uppercase tracking-wider px-5 py-3 font-medium">
+                                Tanggal
+                            </th>
+                            <th className="text-left text-white/50 text-xs uppercase tracking-wider px-5 py-3 font-medium">
                                 Keterangan
                             </th>
                             <th className="text-right text-white/50 text-xs uppercase tracking-wider px-5 py-3 font-medium">
@@ -84,18 +88,31 @@ export default function TransactionTable({ unit, onEdit }: TransactionTableProps
                                 t.status_pinjaman !== null &&
                                 t.status_pinjaman !== 'Tunai';
 
+                            const dateObj = new Date(t.created_at);
+                            const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                            });
+
                             return (
                                 <tr
                                     key={t.id}
                                     className="border-b border-white/5 hover:bg-white/5 transition-colors"
                                 >
                                     <td className="px-5 py-3">
+                                        <div className="flex items-center gap-1.5 text-white/70">
+                                            <Calendar size={12} className="opacity-50" />
+                                            <span className="text-xs whitespace-nowrap">{formattedDate}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-5 py-3">
                                         <div className="flex items-center gap-2">
                                             <span
                                                 className={`w-2 h-2 rounded-full ${isMasuk ? 'bg-emerald-400' : 'bg-rose-400'
                                                     }`}
                                             />
-                                            <span className="text-white/90">{t.keterangan}</span>
+                                            <span className="text-white/90 truncate max-w-[120px] md:max-w-none block" title={t.keterangan}>{t.keterangan}</span>
                                         </div>
                                     </td>
                                     <td
@@ -166,15 +183,22 @@ export default function TransactionTable({ unit, onEdit }: TransactionTableProps
                         t.status_pinjaman !== null &&
                         t.status_pinjaman !== 'Tunai';
 
+                    const dateObj = new Date(t.created_at);
+                    const formattedDate = dateObj.toLocaleDateString('id-ID', {
+                        day: 'numeric',
+                        month: 'short',
+                    });
+
                     return (
                         <div key={t.id} className="p-4 space-y-2">
                             <div className="flex items-start justify-between">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
                                     <span
                                         className={`w-2 h-2 rounded-full shrink-0 ${isMasuk ? 'bg-emerald-400' : 'bg-rose-400'
                                             }`}
                                     />
-                                    <span className="text-white/90 text-sm">{t.keterangan}</span>
+                                    <span className="text-white/90 text-sm truncate">{t.keterangan}</span>
+                                    <span className="text-white/40 text-[10px] whitespace-nowrap px-1.5 py-0.5 border border-white/10 rounded-md shrink-0">{formattedDate}</span>
                                 </div>
                                 <div className="flex gap-1 items-center">
                                     <button
