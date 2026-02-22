@@ -14,6 +14,9 @@ export default function Home() {
   const [formTipe, setFormTipe] = useState<TipeTransaksi>('MASUK');
   const [editData, setEditData] = useState<Transaksi | null>(null);
 
+  // Mobile Tabs State
+  const [activeUnitTab, setActiveUnitTab] = useState<Unit>('BASAH');
+
   const initStore = useTransaksiStore((s) => s.init);
 
   useEffect(() => {
@@ -56,14 +59,42 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Dual Dashboard */}
+      {/* Mobile Unit Tabs */}
+      <div className="lg:hidden max-w-7xl mx-auto px-4 sm:px-6 pt-4">
+        <div className="flex bg-gray-900/50 p-1.5 rounded-2xl border border-white/5 backdrop-blur-xl">
+          <button
+            onClick={() => setActiveUnitTab('BASAH')}
+            className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${activeUnitTab === 'BASAH'
+              ? 'bg-gradient-to-r from-red-600 to-rose-500 text-white shadow-lg shadow-red-500/25'
+              : 'text-white/40 hover:text-white/70'
+              }`}
+          >
+            🌶️ Seblak Basah
+          </button>
+          <button
+            onClick={() => setActiveUnitTab('KERING')}
+            className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${activeUnitTab === 'KERING'
+              ? 'bg-gradient-to-r from-amber-600 to-yellow-500 text-white shadow-lg shadow-amber-500/25'
+              : 'text-white/40 hover:text-white/70'
+              }`}
+          >
+            🔥 Seblak Kering
+          </button>
+        </div>
+      </div>
+
+      {/* Main Dashboard */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* === SEBLAK BASAH === */}
-          <UnitDashboard unit="BASAH" onAddTransaction={openForm} onEditTransaction={openEditForm} />
+          <div className={`${activeUnitTab === 'BASAH' ? 'block' : 'hidden'} lg:block`}>
+            <UnitDashboard unit="BASAH" onAddTransaction={openForm} onEditTransaction={openEditForm} />
+          </div>
 
           {/* === SEBLAK KERING === */}
-          <UnitDashboard unit="KERING" onAddTransaction={openForm} onEditTransaction={openEditForm} />
+          <div className={`${activeUnitTab === 'KERING' ? 'block' : 'hidden'} lg:block`}>
+            <UnitDashboard unit="KERING" onAddTransaction={openForm} onEditTransaction={openEditForm} />
+          </div>
         </div>
       </div>
 
@@ -89,6 +120,7 @@ function UnitDashboard({
   onAddTransaction: (unit: Unit, tipe: TipeTransaksi) => void;
   onEditTransaction: (t: Transaksi) => void;
 }) {
+  const [activeTab, setActiveTab] = useState<'MASUK' | 'KELUAR'>('MASUK');
   const isBasah = unit === 'BASAH';
   const sectionBg = isBasah
     ? 'from-red-500/5 to-transparent border-red-500/10'
@@ -131,16 +163,39 @@ function UnitDashboard({
         </button>
       </div>
 
+      {/* Mobile Transaction Tabs */}
+      <div className="md:hidden flex bg-gray-950/40 p-1.5 rounded-xl border border-white/5 mt-4">
+        <button
+          onClick={() => setActiveTab('MASUK')}
+          className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5 ${activeTab === 'MASUK'
+            ? 'bg-emerald-500/20 text-emerald-400 shadow-lg shadow-emerald-500/10'
+            : 'text-white/40 hover:text-white/70'
+            }`}
+        >
+          <Plus size={14} /> Pendapatan
+        </button>
+        <button
+          onClick={() => setActiveTab('KELUAR')}
+          className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all duration-300 flex items-center justify-center gap-1.5 ${activeTab === 'KELUAR'
+            ? 'bg-rose-500/20 text-rose-400 shadow-lg shadow-rose-500/10'
+            : 'text-white/40 hover:text-white/70'
+            }`}
+        >
+          <Minus size={14} /> Pengeluaran
+        </button>
+      </div>
+
       {/* Transaction Tables */}
       <div className="space-y-6">
-        <div>
-          <h3 className="text-sm font-bold text-emerald-400 mb-3 flex items-center gap-2">
+        {/* Desktop: Show both, Mobile: Show based on activeTab */}
+        <div className={`${activeTab === 'MASUK' ? 'block' : 'hidden'} md:block`}>
+          <h3 className="hidden md:flex text-sm font-bold text-emerald-400 mb-3 items-center gap-2">
             <Plus size={16} /> Riwayat Pendapatan
           </h3>
           <TransactionTable unit={unit} filterTipe="MASUK" onEdit={onEditTransaction} />
         </div>
-        <div>
-          <h3 className="text-sm font-bold text-rose-400 mb-3 flex items-center gap-2">
+        <div className={`${activeTab === 'KELUAR' ? 'block' : 'hidden'} md:block`}>
+          <h3 className="hidden md:flex text-sm font-bold text-rose-400 mb-3 items-center gap-2">
             <Minus size={16} /> Riwayat Pengeluaran
           </h3>
           <TransactionTable unit={unit} filterTipe="KELUAR" onEdit={onEditTransaction} />
