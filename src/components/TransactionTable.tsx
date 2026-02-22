@@ -63,6 +63,9 @@ export default function TransactionTable({ unit, filterTipe, onEdit }: Transacti
                 <table className="w-full text-sm">
                     <thead>
                         <tr className="border-b border-white/10">
+                            <th className="text-center text-white/50 text-xs uppercase tracking-wider px-3 py-3 font-medium w-10">
+                                #
+                            </th>
                             <th className="text-left text-white/50 text-xs uppercase tracking-wider px-5 py-3 font-medium">
                                 Tanggal
                             </th>
@@ -72,16 +75,19 @@ export default function TransactionTable({ unit, filterTipe, onEdit }: Transacti
                             <th className="text-right text-white/50 text-xs uppercase tracking-wider px-5 py-3 font-medium">
                                 Nominal
                             </th>
-                            <th className="text-center text-white/50 text-xs uppercase tracking-wider px-5 py-3 font-medium">
-                                Status
-                            </th>
+                            {filterTipe === 'KELUAR' && (
+                                <th className="text-center text-white/50 text-xs uppercase tracking-wider px-5 py-3 font-medium">
+                                    Status
+                                </th>
+                            )}
                             <th className="text-center text-white/50 text-xs uppercase tracking-wider px-5 py-3 font-medium">
                                 Aksi
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {transaksi.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((t) => {
+                        {transaksi.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((t, index) => {
+                            const absoluteIndex = ((currentPage - 1) * ITEMS_PER_PAGE) + index + 1;
                             const isMasuk = t.tipe === 'MASUK';
                             const isPinjaman =
                                 t.tipe === 'KELUAR' &&
@@ -100,6 +106,9 @@ export default function TransactionTable({ unit, filterTipe, onEdit }: Transacti
                                     key={t.id}
                                     className="border-b border-white/5 hover:bg-white/5 transition-colors"
                                 >
+                                    <td className="px-3 py-3 text-center text-white/40 text-xs font-mono">
+                                        {absoluteIndex}
+                                    </td>
                                     <td className="px-5 py-3">
                                         <div className="flex items-center gap-1.5 text-white/70">
                                             <Calendar size={12} className="opacity-50" />
@@ -122,25 +131,27 @@ export default function TransactionTable({ unit, filterTipe, onEdit }: Transacti
                                         {isMasuk ? '+' : '-'}
                                         {formatRupiah(t.nominal)}
                                     </td>
-                                    <td className="px-5 py-3 text-center">
-                                        {isPinjaman ? (
-                                            t.is_lunas ? (
-                                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full">
-                                                    <CheckCircle2 size={12} />
-                                                    LUNAS
-                                                </span>
+                                    {filterTipe === 'KELUAR' && (
+                                        <td className="px-5 py-3 text-center">
+                                            {isPinjaman ? (
+                                                t.is_lunas ? (
+                                                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full">
+                                                        <CheckCircle2 size={12} />
+                                                        LUNAS
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-orange-400 bg-orange-400/10 px-2.5 py-1 rounded-full">
+                                                        <Clock size={12} />
+                                                        {t.status_pinjaman}
+                                                    </span>
+                                                )
                                             ) : (
-                                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-orange-400 bg-orange-400/10 px-2.5 py-1 rounded-full">
-                                                    <Clock size={12} />
-                                                    {t.status_pinjaman}
+                                                <span className="text-white/30 text-xs">
+                                                    {t.tipe === 'KELUAR' ? 'Tunai' : '—'}
                                                 </span>
-                                            )
-                                        ) : (
-                                            <span className="text-white/30 text-xs">
-                                                {t.tipe === 'KELUAR' ? 'Tunai' : '—'}
-                                            </span>
-                                        )}
-                                    </td>
+                                            )}
+                                        </td>
+                                    )}
                                     <td className="px-5 py-3 text-center">
                                         <div className="flex items-center justify-center gap-2">
                                             {isPinjaman && !t.is_lunas && (
@@ -176,7 +187,8 @@ export default function TransactionTable({ unit, filterTipe, onEdit }: Transacti
 
             {/* Mobile Cards */}
             <div className="md:hidden divide-y divide-white/5">
-                {transaksi.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((t) => {
+                {transaksi.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE).map((t, index) => {
+                    const absoluteIndex = ((currentPage - 1) * ITEMS_PER_PAGE) + index + 1;
                     const isMasuk = t.tipe === 'MASUK';
                     const isPinjaman =
                         t.tipe === 'KELUAR' &&
@@ -193,6 +205,7 @@ export default function TransactionTable({ unit, filterTipe, onEdit }: Transacti
                         <div key={t.id} className="p-4 space-y-2">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-2 min-w-0">
+                                    <span className="text-white/30 text-xs font-mono w-4">{absoluteIndex}.</span>
                                     <span
                                         className={`w-2 h-2 rounded-full shrink-0 ${isMasuk ? 'bg-emerald-400' : 'bg-rose-400'
                                             }`}
@@ -224,30 +237,34 @@ export default function TransactionTable({ unit, filterTipe, onEdit }: Transacti
                                     {formatRupiah(t.nominal)}
                                 </span>
                                 <div className="flex items-center gap-2">
-                                    {isPinjaman ? (
-                                        t.is_lunas ? (
-                                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">
-                                                <CheckCircle2 size={12} />
-                                                LUNAS
-                                            </span>
-                                        ) : (
-                                            <>
-                                                <span className="inline-flex items-center gap-1 text-xs font-semibold text-orange-400 bg-orange-400/10 px-2 py-0.5 rounded-full">
-                                                    <Clock size={12} />
-                                                    {t.status_pinjaman}
+                                    {filterTipe === 'KELUAR' && (
+                                        <>
+                                            {isPinjaman ? (
+                                                t.is_lunas ? (
+                                                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">
+                                                        <CheckCircle2 size={12} />
+                                                        LUNAS
+                                                    </span>
+                                                ) : (
+                                                    <>
+                                                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-orange-400 bg-orange-400/10 px-2 py-0.5 rounded-full">
+                                                            <Clock size={12} />
+                                                            {t.status_pinjaman}
+                                                        </span>
+                                                        <button
+                                                            onClick={() => handleLunasi(t.id)}
+                                                            className={`text-xs font-bold text-white px-3 py-1 rounded-lg ${buttonAccent} transition-all active:scale-95`}
+                                                        >
+                                                            LUNASI
+                                                        </button>
+                                                    </>
+                                                )
+                                            ) : (
+                                                <span className="text-white/30 text-xs">
+                                                    {t.tipe === 'KELUAR' ? 'Tunai' : '—'}
                                                 </span>
-                                                <button
-                                                    onClick={() => handleLunasi(t.id)}
-                                                    className={`text-xs font-bold text-white px-3 py-1 rounded-lg ${buttonAccent} transition-all active:scale-95`}
-                                                >
-                                                    LUNASI
-                                                </button>
-                                            </>
-                                        )
-                                    ) : (
-                                        <span className="text-white/30 text-xs">
-                                            {t.tipe === 'KELUAR' ? 'Tunai' : '—'}
-                                        </span>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             </div>
